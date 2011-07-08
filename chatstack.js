@@ -29,6 +29,9 @@ var ChatStack = {
 		e.stack = [];
 		e.labelStack = [];
 		
+		// acting upon the complete chat history didn't go as well as expected, so
+		// let's move all the nodes from the chat log to a temporary container, in
+		// order to add them back, message by message.
 		while(e.firstChild) {
 			var child = e.firstChild;
 			
@@ -43,28 +46,25 @@ var ChatStack = {
 			content.removeChild(child);
 			e.appendChild(child);
 		
-			if(!child.getElementsByTagName) continue;
-			
-			var links = child.getElementsByTagName('a');
-		
-			for(i = 0; i < links.length; i++) {
-				for(j = 0; j < ChatStack.pushUrl.length; j++) {
-					if(links[i].href == ChatStack.pushUrl[j]) {
-						ChatStack.push(links[i], true);
-						break;
-					} else if(links[i].href == ChatStack.popUrl[j]) {
-						ChatStack.pop(links[i], true);
-						break;
-					}
-				}
-			}
+			ChatStack.interceptLinks(child);
 		}
 	
-		e.addEventListener('DOMNodeInserted', function(x) { setTimeout(function() { ChatStack.interceptLinks(x.target) }, 100) }, true);
+		// we have to let the DOM finish inserting all the node's children to be
+		// able to detect the other person's links correctly. Also avoids some
+		// timing issues where the magic links are linkefied before displaying them
+		// on the screen.
+		e.addEventListener('DOMNodeInserted', function(x) {
+			setTimeout(function() { ChatStack.interceptLinks(x.target); }, 100);
+		}, true);
 	},
 	
 	interceptLinks: function(link) {
 		if(link.nodeName == 'A') {
+			// avoids double action on links. haven't seen it, but it's possible
+			// under some scenarios.
+			if(link.chatStackMangled) return;
+			link.chatStackMangled = true;
+			
 			for(j = 0; j < ChatStack.pushUrl.length; j++) {
 				if(link.href == ChatStack.pushUrl[j]) {
 					ChatStack.push(link, false);
@@ -73,8 +73,9 @@ var ChatStack = {
 				}
 			}
 		} else if (link.getElementsByTagName) {
+			// if gtalk was too quick and linkefied all the urls BEFORE adding them
+			// to the DOM tree, let's detect links within messages.
 			var links = link.getElementsByTagName('a');
-			console.log(links);
 			
 			for(i = 0; i < links.length; i++) {
 				ChatStack.interceptLinks(links[i]);
@@ -88,7 +89,8 @@ var ChatStack = {
 	},
 	
 	getMessage: function(node) {
-		while(node && !(node.attributes.role && node.attributes.role.nodeValue == 'chatMessage')) node = node.parentNode;
+		while(node && !(node.attributes.role && node.attributes.role.nodeValue == 'chatMessage'))
+			node = node.parentNode;
 		return node;
 	},
 	
@@ -96,6 +98,8 @@ var ChatStack = {
 		var chat = ChatStack.getChat(node);
 		var context = "";
 		
+		// deactivate interception while we are mangling with the DOM. don't want
+		// a link to activate while we are popping it back.
 		if(!chat || chat.cancelInterception) return;
 		chat.cancelInterception = true;
 		
@@ -127,6 +131,8 @@ var ChatStack = {
 	pop: function(node, bulk) {
 		var chat = ChatStack.getChat(node);
 		
+		// deactivate interception while we are mangling with the DOM. don't want
+		// a link to activate while we are popping it back.
 		if(!chat || chat.stack.length == 0 || chat.cancelInterception) return;
 		chat.cancelInterception = true;
 		
@@ -146,7 +152,7 @@ var ChatStack = {
 			chat.appendChild(child);
 		}
 		
-		// it would be a great idea to insert newContents... here
+		// TODO: make the toggle link to view the nested context work
 		var toggleLink = document.createElement('a');
 		toggleLink.appendChild(document.createTextNode('...'));
 		toggleLink.href = 'javascript:void(0)';
