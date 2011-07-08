@@ -60,34 +60,44 @@ var ChatStack = {
 			}
 		}
 	
-		e.addEventListener('DOMNodeInserted', ChatStack.interceptLinks, true);
+		e.addEventListener('DOMNodeInserted', function(x) { setTimeout(function() { ChatStack.interceptLinks(x.target) }, 100) }, true);
 	},
 	
-	interceptLinks: function(e) {
-		if(e.target.nodeName == 'A') {
+	interceptLinks: function(link) {
+		if(link.nodeName == 'A') {
 			for(j = 0; j < ChatStack.pushUrl.length; j++) {
-				if(e.target.href == ChatStack.pushUrl[j]) {
-					ChatStack.push(e.target, false);
-				} else if(e.target.href == ChatStack.popUrl[j]) {
-					ChatStack.pop(e.target, false);
+				if(link.href == ChatStack.pushUrl[j]) {
+					ChatStack.push(link, false);
+				} else if(link.href == ChatStack.popUrl[j]) {
+					ChatStack.pop(link, false);
 				}
+			}
+		} else if (link.getElementsByTagName) {
+			var links = link.getElementsByTagName('a');
+			console.log(links);
+			
+			for(i = 0; i < links.length; i++) {
+				ChatStack.interceptLinks(links[i]);
 			}
 		}
 	},
 	
 	getChat: function(node) {
-		while(!node.stack) node = node.parentNode;
+		while(node && !node.stack) node = node.parentNode;
 		return node;
 	},
 	
 	getMessage: function(node) {
-		while(!(node.attributes.role && node.attributes.role.nodeValue == 'chatMessage')) node = node.parentNode;
+		while(node && !(node.attributes.role && node.attributes.role.nodeValue == 'chatMessage')) node = node.parentNode;
 		return node;
 	},
 	
 	push: function(node, bulk) {
 		var chat = ChatStack.getChat(node);
 		var context = "";
+		
+		if(!chat || chat.cancelInterception) return;
+		chat.cancelInterception = true;
 		
 		if(node.previousSibling && node.previousSibling.nodeValue) {
 			context = node.previousSibling.nodeValue.replace(/^\s+|\s+$/g,"");
@@ -110,12 +120,15 @@ var ChatStack = {
 		chat.labelStack.push(label);
 		
 		chat.parentNode.appendChild(label);
+		
+		chat.cancelInterception = false;
 	},
 	
 	pop: function(node, bulk) {
 		var chat = ChatStack.getChat(node);
 		
-		if(chat.stack.length == 0) return;
+		if(!chat || chat.stack.length == 0 || chat.cancelInterception) return;
+		chat.cancelInterception = true;
 		
 		var oldContents = chat.stack.pop();
 		var newContents = document.createElement('div');
@@ -153,6 +166,8 @@ var ChatStack = {
 		var label = chat.labelStack.pop();
 		
 		label.parentNode.removeChild(label);
+		
+		chat.cancelInterception = false;
 	}
 };
 
