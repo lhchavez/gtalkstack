@@ -123,6 +123,7 @@ var ChatStack = {
 		
 		chat.labelStack.push(label);
 		
+		// TODO: make the label display the content that was there before the push
 		chat.parentNode.appendChild(label);
 		
 		chat.cancelInterception = false;
