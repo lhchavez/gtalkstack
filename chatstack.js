@@ -1,6 +1,7 @@
 var ChatStack = {
 	pushUrl: ['http://push.st/', 'http://push.st'],
 	popUrl: ['http://pop.st/', 'http://pop.st'],
+	isOTR: false,
 	
 	install: function() {
 		if(document.body.className == 'xE') {
@@ -80,12 +81,26 @@ var ChatStack = {
 				ChatStack.pop(link);
 			}
 		} else if (link.getElementsByTagName) {
-			// if gtalk was too quick and linkefied all the urls BEFORE adding them
-			// to the DOM tree, let's detect links within messages.
-			var links = link.getElementsByTagName('a');
+			// first check if it is an OTR message
+			if(link.className == 'kq') {
+				// this is a "system message"
+				if(link.innerHTML.indexOf('answer=29291') != -1) {
+					// OTR
+					ChatStack.isOTR = true;
+					ChatStack.push(link);
+				} else if(link.innerHTML.indexOf('no longer') != -1) {
+					// not OTR
+					ChatStack.pop(link);
+					ChatStack.isOTR = false;
+				}
+			} else {
+				// if gtalk was too quick and linkefied all the urls BEFORE adding them
+				// to the DOM tree, let's detect links within messages.
+				var links = link.getElementsByTagName('a');
 			
-			for(i = 0; i < links.length; i++) {
-				ChatStack.interceptLinks(links[i]);
+				for(i = 0; i < links.length; i++) {
+					ChatStack.interceptLinks(links[i]);
+				}
 			}
 		}
 	},
@@ -113,6 +128,9 @@ var ChatStack = {
 		if(node.previousSibling && node.previousSibling.nodeValue) {
 			context = node.previousSibling.nodeValue.replace(/^\s+|\s+$/g,"");
 		}
+		if(ChatStack.isOTR) {
+			context += ' (OTR)';
+		}
 		
 		var oldContents = document.createElement('div');
 		var msg = ChatStack.getMessage(node);
@@ -127,6 +145,9 @@ var ChatStack = {
 		
 		var label = document.createElement('div');
 		label.appendChild(document.createTextNode(context));
+		if(ChatStack.isOTR) {
+			label.className = 'otr';
+		}
 		
 		chat.labelStack.push(label);
 		
@@ -172,14 +193,27 @@ var ChatStack = {
 		
 			var toggleLink = document.createElement('div');
 			toggleLink.appendChild(document.createTextNode(label.firstChild.nodeValue));
-			toggleLink.className = 'toggle expand';
+			toggleLink.isOTR = ChatStack.isOTR;
+			if(toggleLink.isOTR) {
+				toggleLink.className = 'toggle expand otr';
+			} else {
+				toggleLink.className = 'toggle expand';
+			}
 			toggleLink.addEventListener('click', function() {
 				if(newContents.style.display == 'none') {
 					newContents.style.display = '';
-					toggleLink.className = 'toggle collapse';
+					if(toggleLink.isOTR) {
+						toggleLink.className = 'toggle collapse otr';
+					} else {
+						toggleLink.className = 'toggle collapse';
+					}
 				} else {
 					newContents.style.display = 'none';
-					toggleLink.className = 'toggle expand';
+					if(toggleLink.isOTR) {
+						toggleLink.className = 'toggle expand otr';
+					} else {
+						toggleLink.className = 'toggle expand';
+					}
 				}
 			}, true);
 		
