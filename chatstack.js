@@ -22,17 +22,7 @@ var ChatStack = {
 				return;
 			}
 		
-			chats = chats[0];
-		
-			// <dev>
-			// only for dev purposes, will remove once it is stable
-			if(ChatStack.oldinsert) {
-				chats.removeEventListener('DOMNodeInserted', ChatStack.oldinsert, true);
-			}
-			ChatStack.oldinsert = ChatStack.detectChats;
-			// </dev>
-		
-			chats.addEventListener('DOMNodeInserted', ChatStack.detectChats, true);
+			chats[0].addEventListener('DOMNodeInserted', ChatStack.detectChats, true);
 		}
 	},
 	
@@ -84,12 +74,10 @@ var ChatStack = {
 			if(link.chatStackMangled) return;
 			link.chatStackMangled = true;
 			
-			for(j = 0; j < ChatStack.pushUrl.length; j++) {
-				if(link.href == ChatStack.pushUrl[j]) {
-					ChatStack.push(link, false);
-				} else if(link.href == ChatStack.popUrl[j]) {
-					ChatStack.pop(link, false);
-				}
+			if(ChatStack.pushUrl.indexOf(link.href) != -1) {
+				ChatStack.push(link);
+			} else if(ChatStack.popUrl.indexOf(link.href) != -1) {
+				ChatStack.pop(link);
 			}
 		} else if (link.getElementsByTagName) {
 			// if gtalk was too quick and linkefied all the urls BEFORE adding them
@@ -113,7 +101,7 @@ var ChatStack = {
 		return node;
 	},
 	
-	push: function(node, bulk) {
+	push: function(node) {
 		var chat = ChatStack.getChat(node);
 		var context = "";
 		
@@ -143,12 +131,12 @@ var ChatStack = {
 		chat.labelStack.push(label);
 		
 		// TODO: make the label display the content that was there before the push
-		chat.parentNode.appendChild(label);
+		chat.parentNode.parentNode.parentNode.insertBefore(label, chat.parentNode.parentNode);
 		
 		chat.cancelInterception = false;
 	},
 	
-	pop: function(node, bulk) {
+	pop: function(node) {
 		var chat = ChatStack.getChat(node);
 		
 		// deactivate interception while we are mangling with the DOM. don't want
@@ -172,36 +160,36 @@ var ChatStack = {
 			chat.insertBefore(child, msg);
 		}
 		
-		if(newContents.children.length == 0) {
-			// and nothing of value was lost
-			// i.e. the push and pop were on the same chat block
-			return;
-		}
-		
 		var label = chat.labelStack.pop();
 		
-		var stackContainer = document.createElement('div');
-		stackContainer.className = 'stackContainer';
+		if(newContents.children.length != 0) {
+			// only insert an awesome-looking collapsed version of the pushed context
+			// if it actually has anything. i.e. if the push and pop commands are on
+			// the same chat block, it isn't worth collapsing an empty block.
+			
+			var stackContainer = document.createElement('div');
+			stackContainer.className = 'stackContainer';
 		
-		var toggleLink = document.createElement('div');
-		toggleLink.appendChild(document.createTextNode(label.firstChild.nodeValue));
-		toggleLink.className = 'toggle expand';
-		toggleLink.addEventListener('click', function() {
-			if(newContents.style.display == 'none') {
-				newContents.style.display = '';
-				toggleLink.className = 'toggle collapse';
-			} else {
-				newContents.style.display = 'none';
-				toggleLink.className = 'toggle expand';
-			}
-		}, true);
+			var toggleLink = document.createElement('div');
+			toggleLink.appendChild(document.createTextNode(label.firstChild.nodeValue));
+			toggleLink.className = 'toggle expand';
+			toggleLink.addEventListener('click', function() {
+				if(newContents.style.display == 'none') {
+					newContents.style.display = '';
+					toggleLink.className = 'toggle collapse';
+				} else {
+					newContents.style.display = 'none';
+					toggleLink.className = 'toggle expand';
+				}
+			}, true);
 		
-		stackContainer.appendChild(toggleLink);
-		newContents.style.display = 'none';
-		newContents.style.padding = '0 0 0 25px';
-		stackContainer.appendChild(newContents);
+			stackContainer.appendChild(toggleLink);
+			newContents.className = 'nested';
+			newContents.style.display = 'none';
+			stackContainer.appendChild(newContents);
 		
-		chat.insertBefore(stackContainer, msg);
+			chat.insertBefore(stackContainer, msg);
+		}
 		
 		label.parentNode.removeChild(label);
 		

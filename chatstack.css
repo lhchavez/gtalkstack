@@ -21,3 +21,7 @@
 .stackContainer .collapse {
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAABjSURBVDiN1ZNBCsAgDAR3+/L48unFgi0aBfFQIZdkZy6JBrTzri36uMB22I7UAHRLUkiiVgxzC3AqWYWHkhkcvV5XkAXT2SwwkyzBmeR7BwUY7r3OStszoOdYMvgFNXn//zPdEDbqQ7CjjwQAAAAASUVORK5CYII=);
 }
+
+.stackContainer .nested {
+	padding-left: 25px;
+}
