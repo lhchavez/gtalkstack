@@ -44,9 +44,6 @@ var ChatStack = {
 	
 	register: function(e) {
 		var content = document.createElement('div');
-		
-		console.log('registered');
-		console.log(e);
 	
 		e.stack = [];
 		e.labelStack = [];
@@ -169,34 +166,33 @@ var ChatStack = {
 			newContents.appendChild(child);
 		}
 		
-		if(newContents.children.length == 0) {
-			// and nothing of value was lost
-			// i.e. the push and pop were on the same chat block
-			return;
-		}
-		
 		while(oldContents.firstChild) {
 			var child = oldContents.firstChild;
 			oldContents.removeChild(child);
 			chat.insertBefore(child, msg);
 		}
 		
+		if(newContents.children.length == 0) {
+			// and nothing of value was lost
+			// i.e. the push and pop were on the same chat block
+			return;
+		}
+		
 		var label = chat.labelStack.pop();
 		
 		var stackContainer = document.createElement('div');
-		stackContainer.style.borderColor = '#ccc';
-		stackContainer.style.borderWidth = '1px 0 1px 0';
-		stackContainer.style.borderStyle = 'solid';
+		stackContainer.className = 'stackContainer';
 		
 		var toggleLink = document.createElement('div');
-		toggleLink.appendChild(document.createTextNode('> ' + label.firstChild.nodeValue));
-		toggleLink.style.decoration = 'underline';
-		toggleLink.style.color = '#00f';
+		toggleLink.appendChild(document.createTextNode(label.firstChild.nodeValue));
+		toggleLink.className = 'toggle expand';
 		toggleLink.addEventListener('click', function() {
 			if(newContents.style.display == 'none') {
 				newContents.style.display = '';
+				toggleLink.className = 'toggle collapse';
 			} else {
 				newContents.style.display = 'none';
+				toggleLink.className = 'toggle expand';
 			}
 		}, true);
 		

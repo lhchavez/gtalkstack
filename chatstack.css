@@ -1,0 +1,23 @@
+.stackContainer {
+	border-color: #eee;
+	border-width: 1px 0 1px 0;
+	border-style: solid;
+}
+
+.stackContainer .toggle {
+	background-color: #f5f5f5;
+	border-bottom: 1px solid #fafafa;
+	background-repeat: no-repeat;
+	background-position: 2px 50%;
+	padding-left: 24px;
+	min-height: 16px;
+	color: #777;
+}
+
+.stackContainer .expand {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAABlSURBVDiN1VM5DsAwCLP78fBzd0mH0nBIydJIXoIBgwUlYeddW9nHCpA0ktZN8nwDoAmThAye70cYmZIZG6/PRdWlkohTEspY1aVSVy3J4ztaY9OpQ227Ih6zW3gslRRb+/9jugEUaOVNZG+eygAAAABJRU5ErkJggg==);
+}
+
+.stackContainer .collapse {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAABjSURBVDiN1ZNBCsAgDAR3+/L48unFgi0aBfFQIZdkZy6JBrTzri36uMB22I7UAHRLUkiiVgxzC3AqWYWHkhkcvV5XkAXT2SwwkyzBmeR7BwUY7r3OStszoOdYMvgFNXn//zPdEDbqQ7CjjwQAAAAASUVORK5CYII=);
+}
