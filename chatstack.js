@@ -3,18 +3,37 @@ var ChatStack = {
 	popUrl: ['http://pop.st/', 'http://pop.st'],
 	
 	install: function() {
-		// this is the root element for all the chat windows
-		var chats = document.getElementsByClassName('no')[0];
+		if(document.body.className == 'xE') {
+			// single window mode
+			var chat = document.getElementsByClassName('kf');
+			
+			if(chat.length == 0) {
+				setTimeout(ChatStack.install, 1000);
+				return;
+			}
+			
+			ChatStack.register(chat[0]);
+		} else {
+			// this is the root element for all the chat windows, for normal mode
+			var chats = document.getElementsByClassName('no');
 		
-		// <dev>
-		// only for dev purposes, will remove once it is stable
-		if(ChatStack.oldinsert) {
-			chats.removeEventListener('DOMNodeInserted', ChatStack.oldinsert, true);
+			if(chats.length == 0) {
+				setTimeout(ChatStack.install, 1000);
+				return;
+			}
+		
+			chats = chats[0];
+		
+			// <dev>
+			// only for dev purposes, will remove once it is stable
+			if(ChatStack.oldinsert) {
+				chats.removeEventListener('DOMNodeInserted', ChatStack.oldinsert, true);
+			}
+			ChatStack.oldinsert = ChatStack.detectChats;
+			// </dev>
+		
+			chats.addEventListener('DOMNodeInserted', ChatStack.detectChats, true);
 		}
-		ChatStack.oldinsert = ChatStack.detectChats;
-		// </dev>
-		
-		chats.addEventListener('DOMNodeInserted', ChatStack.detectChats, true);
 	},
 	
 	detectChats: function(e) {
@@ -25,6 +44,9 @@ var ChatStack = {
 	
 	register: function(e) {
 		var content = document.createElement('div');
+		
+		console.log('registered');
+		console.log(e);
 	
 		e.stack = [];
 		e.labelStack = [];
@@ -147,30 +169,43 @@ var ChatStack = {
 			newContents.appendChild(child);
 		}
 		
+		if(newContents.children.length == 0) {
+			// and nothing of value was lost
+			// i.e. the push and pop were on the same chat block
+			return;
+		}
+		
 		while(oldContents.firstChild) {
 			var child = oldContents.firstChild;
 			oldContents.removeChild(child);
-			chat.appendChild(child);
+			chat.insertBefore(child, msg);
 		}
 		
-		// TODO: make the toggle link to view the nested context work
-		var toggleLink = document.createElement('a');
-		toggleLink.appendChild(document.createTextNode('...'));
-		toggleLink.href = 'javascript:void(0)';
-		toggleLink.target = '_self';
-		toggleLink.onclick = function() {
-			if(newContents.display == 'none') {
-				newContents.display = '';
-			} else {
-				newContents.display = 'none';
-			}
-		};
-		
-		chat.appendChild(toggleLink);
-		newContents.style.display = 'none';
-		chat.appendChild(newContents);
-		
 		var label = chat.labelStack.pop();
+		
+		var stackContainer = document.createElement('div');
+		stackContainer.style.borderColor = '#ccc';
+		stackContainer.style.borderWidth = '1px 0 1px 0';
+		stackContainer.style.borderStyle = 'solid';
+		
+		var toggleLink = document.createElement('div');
+		toggleLink.appendChild(document.createTextNode('> ' + label.firstChild.nodeValue));
+		toggleLink.style.decoration = 'underline';
+		toggleLink.style.color = '#00f';
+		toggleLink.addEventListener('click', function() {
+			if(newContents.style.display == 'none') {
+				newContents.style.display = '';
+			} else {
+				newContents.style.display = 'none';
+			}
+		}, true);
+		
+		stackContainer.appendChild(toggleLink);
+		newContents.style.display = 'none';
+		newContents.style.padding = '0 0 0 25px';
+		stackContainer.appendChild(newContents);
+		
+		chat.insertBefore(stackContainer, msg);
 		
 		label.parentNode.removeChild(label);
 		

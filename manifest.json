@@ -1,0 +1,14 @@
+{
+  "name": "Google Talk Stacked Conversations",
+  "version": "0.9",
+
+  "description": "How did this conversation end up like this? Annotate your chat conversation every time you change subject followed by push.st, and use pop.st to return to the previous state.",
+  
+  "content_scripts": [
+      {
+        "matches": ["http://mail.google.com/*", "https://mail.google.com/*"],
+        "js": ["chatstack.js"],
+        "all_frames": true
+      }
+  ]
+}
