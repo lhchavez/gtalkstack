@@ -146,7 +146,9 @@ var ChatStack = {
 		var label = document.createElement('div');
 		label.appendChild(document.createTextNode(context));
 		if(ChatStack.isOTR) {
-			label.className = 'otr';
+			label.className = 'ko otr';
+		} else {
+			label.className = 'ko';
 		}
 		
 		chat.labelStack.push(label);
