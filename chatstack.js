@@ -42,15 +42,19 @@ var ChatStack = {
 		e.stack = [];
 		e.labelStack = [];
 		
-		var rootLabel = {label: document.createElement('div'), contents: e, chat: e};
-		rootLabel.label.className = 'csLabel ko selected';
-		
-		rootLabel.label.appendChild(document.createTextNode('root'));
-		rootLabel.label.addEventListener('click', function() {
-			ChatStack.selectLabel(rootLabel);
-		}, true);
+		var rootLabel = {label: 'root', contents: e, chat: e};
 		
 		e.labelStack.push(rootLabel);
+		
+		var title = e.parentNode.parentNode.parentNode.parentNode.parentNode.getElementsByClassName('Hp')[0];
+		
+		var stackSelector = document.createElement('span');
+		stackSelector.className = 'stackSelector';
+		stackSelector.appendChild(document.createTextNode('root'));
+		
+		e.selector = stackSelector;
+		
+		title.parentNode.insertBefore(stackSelector, title);
 		
 		//e.parentNode.parentNode.parentNode.insertBefore(rootLabel.label, e.parentNode.parentNode);
 		if(ChatStack.isWindow)
@@ -213,7 +217,6 @@ var ChatStack = {
 			ChatStack.selectLabel(label);
 		}, true);
 		
-		console.log(chat.labelStack);
 		chat.labelStack[chat.labelStack.length - 1].contents = oldContents;
 		chat.labelStack.push(label);
 		
