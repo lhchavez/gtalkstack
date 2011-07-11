@@ -46,15 +46,40 @@ var ChatStack = {
 		
 		e.labelStack.push(rootLabel);
 		
-		var title = e.parentNode.parentNode.parentNode.parentNode.parentNode.getElementsByClassName('Hp')[0];
+		var title = e.parentNode.parentNode.parentNode.parentNode.parentNode.getElementsByClassName('NI')[0];
 		
 		var stackSelector = document.createElement('span');
-		stackSelector.className = 'stackSelector';
-		stackSelector.appendChild(document.createTextNode('root'));
+		stackSelector.className = 'stackSelector NE';
+		stackSelector.appendChild(document.createTextNode('root ▼'));
+		
+		var selectorWindow = document.createElement('div');
+		selectorWindow.className = 'selectorWindow';
+		selectorWindow.style.display = 'none';
+		
+		var rootLink = document.createElement('div');
+		rootLink.className = 'stackElement';
+		rootLink.appendChild(document.createTextNode('root'));
+		
+		selectorWindow.appendChild(rootLink);
+		
+		stackSelector.addEventListener('click', function(e) {
+			e.stopPropagation();
+			e.preventDefault();
+			
+			if(selectorWindow.style.display == 'none') {
+				selectorWindow.style.display = '';
+			} else {
+				selectorWindow.style.display = 'none';
+			}
+		}, false);
+		
+		stackSelector.appendChild(selectorWindow);
 		
 		e.selector = stackSelector;
+		e.selectorWindow = selectorWindow;
 		
-		title.parentNode.insertBefore(stackSelector, title);
+		title.appendChild(stackSelector);
+		title.appendChild(selectorWindow);
 		
 		//e.parentNode.parentNode.parentNode.insertBefore(rootLabel.label, e.parentNode.parentNode);
 		if(ChatStack.isWindow)

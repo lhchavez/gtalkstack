@@ -14,17 +14,27 @@
 	color: #777;
 }
 
+.NI.NJ {
+	text-align: right;
+}
+
 .stackSelector {
-	min-height: 16px !important;
-	padding-left: 24px !important;
-	background-color: #444 !important;
-	color: #eee !important;
-	border-bottom: 1px solid #888 !important;
-	float: right;
-	
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAABlSURBVDiN1VM5DsAwCLP78fBzd0mH0nBIydJIXoIBgwUlYeddW9nHCpA0ktZN8nwDoAmThAye70cYmZIZG6/PRdWlkohTEspY1aVSVy3J4ztaY9OpQ227Ih6zW3gslRRb+/9jugEUaOVNZG+eygAAAABJRU5ErkJggg==);
-	background-position: 0 50%;
-	background-repeat: no-repeat;
+	cursor: pointer;
+	text-align: right;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	direction: rtl;
+	position: relative;
+}
+
+.selectorWindow {
+	position: absolute;
+	width: 200px;
+	background: #fff;
+	right: 0;
+	top: 1em;
+	z-index: 100;
 }
 
 .oldContent {
