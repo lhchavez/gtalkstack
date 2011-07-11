@@ -14,11 +14,31 @@
 	color: #777;
 }
 
-.stackContainer .expand {
+.csLabel {
+	min-height: 16px !important;
+	padding-left: 24px !important;
+	background-color: #444 !important;
+	color: #eee !important;
+	border-bottom: 1px solid #888 !important;
+}
+
+.oldContent {
+	max-height: 300px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+.csLabel.selected {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAN1wAADdcBQiibeAAAAAd0SU1FB9sHChcbGMqDnAEAAABkSURBVDjLtZNBDsAgCAQHP1768vXSNh5UMKQke9E4WRYxSYxlZg4gycmUpE+AA3rk491KbcO+XjdpBxMXoZP54QFkTU5CtgFlIGHKEaRRrd9aKIVYGmPpI50+jqZwZzbSquvcAZ3xqoRcFjNmAAAAAElFTkSuQmCC);
+	background-position: 0 50%;
+	background-repeat: no-repeat;
+}
+
+.stackContainer .expand, .csLabel.expand {
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAABlSURBVDiN1VM5DsAwCLP78fBzd0mH0nBIydJIXoIBgwUlYeddW9nHCpA0ktZN8nwDoAmThAye70cYmZIZG6/PRdWlkohTEspY1aVSVy3J4ztaY9OpQ227Ih6zW3gslRRb+/9jugEUaOVNZG+eygAAAABJRU5ErkJggg==);
 }
 
-.stackContainer .collapse {
+.stackContainer .collapse, .csLabel.collapse {
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAABjSURBVDiN1ZNBCsAgDAR3+/L48unFgi0aBfFQIZdkZy6JBrTzri36uMB22I7UAHRLUkiiVgxzC3AqWYWHkhkcvV5XkAXT2SwwkyzBmeR7BwUY7r3OStszoOdYMvgFNXn//zPdEDbqQ7CjjwQAAAAASUVORK5CYII=);
 }
 
@@ -27,7 +47,6 @@
 }
 
 .otr {
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAN1wAADdcBQiibeAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAABjSURBVDiN1ZNBCsAgDAR3+/L48unFgi0aBfFQIZdkZy6JBrTzri36uMB22I7UAHRLUkiiVgxzC3AqWYWHkhkcvV5XkAXT2SwwkyzBmeR7BwUY7r3OStszoOdYMvgFNXn//zPdEDbqQ7CjjwQAAAAASUVORK5CYII=);
-	background-position: 100% 50%;
-	background-repeat: no-repeat;
+	background-color: #444;
+	color: #eee;
 }

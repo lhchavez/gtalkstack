@@ -2,6 +2,7 @@ var ChatStack = {
 	pushUrl: ['http://push.st/', 'http://push.st'],
 	popUrl: ['http://pop.st/', 'http://pop.st'],
 	isOTR: false,
+	isWindow: false,
 	
 	install: function() {
 		if(document.body.className == 'xE') {
@@ -12,6 +13,8 @@ var ChatStack = {
 				setTimeout(ChatStack.install, 1000);
 				return;
 			}
+			
+			ChatStack.isWindow = true;
 			
 			ChatStack.register(chat[0]);
 		} else {
@@ -38,6 +41,20 @@ var ChatStack = {
 	
 		e.stack = [];
 		e.labelStack = [];
+		
+		var rootLabel = {label: document.createElement('div'), contents: e, chat: e};
+		rootLabel.label.className = 'csLabel ko selected';
+		
+		rootLabel.label.appendChild(document.createTextNode('root'));
+		rootLabel.label.addEventListener('click', function() {
+			ChatStack.selectLabel(rootLabel);
+		}, true);
+		
+		e.labelStack.push(rootLabel);
+		
+		//e.parentNode.parentNode.parentNode.insertBefore(rootLabel.label, e.parentNode.parentNode);
+		if(ChatStack.isWindow)
+			window.innerHeight += 16;
 		
 		// acting upon the complete chat history didn't go as well as expected, so
 		// let's move all the nodes from the chat log to a temporary container, in
@@ -111,9 +128,49 @@ var ChatStack = {
 	},
 	
 	getMessage: function(node) {
-		while(node && !(node.attributes.role && node.attributes.role.nodeValue == 'chatMessage'))
+		// fixed a bug that only happens in *some* computers. weird.
+		while(node && !(node.attributes && node.attributes.role && node.attributes.role.nodeValue == 'chatMessage'))
 			node = node.parentNode;
 		return node;
+	},
+	
+	addClass: function(node, className) {
+		if(node.className.indexOf(className) == -1) {
+			if(node.className.length == 0) node.className = className;
+			else node.className += ' ' + className;
+		}
+	},
+	
+	removeClass: function(node, className) {
+		if(node.className.indexOf(className) != -1) {
+			node.className = node.className
+				.replace(className, '')
+				.replace(/ +/g, " ")
+				.replace(/^ /, "")
+				.replace(/ $/, "");
+		}
+	},
+	
+	replaceClass: function(node, before, after) {
+		ChatStack.removeClass(node, before);
+		ChatStack.addClass(node, after);
+	},
+	
+	selectLabel: function(label) {
+		console.log(label);
+		console.log(label.chat.labelStack);
+		if(label.contents.style.display == '') {
+			// it is already selected. nothing to do here.
+			return;
+		}
+		
+		for(i = 0; i < label.chat.labelStack.length; i++) {
+			ChatStack.removeClass(label.chat.labelStack[i].label, 'selected');
+			label.chat.labelStack[i].contents.style.display = 'none';
+		}
+		
+		ChatStack.addClass(label.label, 'selected');
+		label.contents.style.display = '';
 	},
 	
 	push: function(node) {
@@ -141,20 +198,32 @@ var ChatStack = {
 			oldContents.appendChild(child);
 		}
 		
+		oldContents.style.display = 'none';
+		oldContents.className = 'ko oldContent';
 		chat.stack.push(oldContents);
 		
-		var label = document.createElement('div');
-		label.appendChild(document.createTextNode(context));
+		var label = {label: document.createElement('div'), contents: chat, chat: chat};
+		label.label.appendChild(document.createTextNode(context));
+		label.label.className = 'csLabel ko';
 		if(ChatStack.isOTR) {
-			label.className = 'ko otr';
-		} else {
-			label.className = 'ko';
+			ChatStack.addClass(label.label, 'otr');
 		}
 		
+		label.label.addEventListener('click', function() {
+			ChatStack.selectLabel(label);
+		}, true);
+		
+		console.log(chat.labelStack);
+		chat.labelStack[chat.labelStack.length - 1].contents = oldContents;
 		chat.labelStack.push(label);
 		
-		// TODO: make the label display the content that was there before the push
-		chat.parentNode.parentNode.parentNode.insertBefore(label, chat.parentNode.parentNode);
+		chat.parentNode.parentNode.parentNode.insertBefore(oldContents, chat.parentNode.parentNode);
+		//chat.parentNode.parentNode.parentNode.insertBefore(label.label, chat.parentNode.parentNode);
+		
+		if(ChatStack.isWindow)
+			window.innerHeight += 30;
+			
+		//ChatStack.selectLabel(label);
 		
 		chat.cancelInterception = false;
 	},
@@ -194,28 +263,21 @@ var ChatStack = {
 			stackContainer.className = 'stackContainer';
 		
 			var toggleLink = document.createElement('div');
-			toggleLink.appendChild(document.createTextNode(label.firstChild.nodeValue));
+			toggleLink.appendChild(document.createTextNode(label.label.firstChild.nodeValue));
 			toggleLink.isOTR = ChatStack.isOTR;
+			toggleLink.className = 'toggle expand';
+			
 			if(toggleLink.isOTR) {
-				toggleLink.className = 'toggle expand otr';
-			} else {
-				toggleLink.className = 'toggle expand';
+				ChatStack.addClass(toggleLink, 'otr');
 			}
+			
 			toggleLink.addEventListener('click', function() {
 				if(newContents.style.display == 'none') {
 					newContents.style.display = '';
-					if(toggleLink.isOTR) {
-						toggleLink.className = 'toggle collapse otr';
-					} else {
-						toggleLink.className = 'toggle collapse';
-					}
+					ChatStack.replaceClass(toggleLink, 'expand', 'collapse');
 				} else {
 					newContents.style.display = 'none';
-					if(toggleLink.isOTR) {
-						toggleLink.className = 'toggle expand otr';
-					} else {
-						toggleLink.className = 'toggle expand';
-					}
+					ChatStack.replaceClass(toggleLink, 'collapse', 'expand');
 				}
 			}, true);
 		
@@ -227,7 +289,14 @@ var ChatStack = {
 			chat.insertBefore(stackContainer, msg);
 		}
 		
-		label.parentNode.removeChild(label);
+		//label.label.parentNode.removeChild(label.label);
+		
+		var oldContents = chat.labelStack[chat.labelStack.length - 1].contents;
+		oldContents.parentNode.removeChild(oldContents);
+		chat.labelStack[chat.labelStack.length - 1].contents = chat;
+		
+		if(ChatStack.isWindow)
+			window.innerHeight -= 30;
 		
 		chat.cancelInterception = false;
 	}
