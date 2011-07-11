@@ -16,6 +16,7 @@
 
 .NI.NJ {
 	text-align: right;
+	position: relative;
 }
 
 .stackSelector {
@@ -31,22 +32,37 @@
 .selectorWindow {
 	position: absolute;
 	width: 200px;
-	background: #fff;
+	background: #F7F7F7;
 	right: 0;
-	top: 1em;
+	top: 1.5em;
 	z-index: 100;
+	border: 1px solid #888;
+	border-bottom-width: 3px;
+	border-right-width: 3px;
+	padding: 3px;
+	text-align: left;
+}
+
+.selectorWindow .stackElement {
+	cursor: pointer;
+	color: #000;
+	padding-left: 25px;
+}
+
+.selectorWindow .stackElement:hover {
+	background-color: #ffd;
+}
+
+.selectorWindow .stackElement.selected {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAN1wAADdcBQiibeAAAAAd0SU1FB9sHChcbGMqDnAEAAABkSURBVDjLtZNBDsAgCAQHP1768vXSNh5UMKQke9E4WRYxSYxlZg4gycmUpE+AA3rk491KbcO+XjdpBxMXoZP54QFkTU5CtgFlIGHKEaRRrd9aKIVYGmPpI50+jqZwZzbSquvcAZ3xqoRcFjNmAAAAAElFTkSuQmCC);
+	background-position: 0 50%;
+	background-repeat: no-repeat;
 }
 
 .oldContent {
 	max-height: 300px;
 	overflow-x: hidden;
 	overflow-y: scroll;
-}
-
-.csLabel.selected {
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAN1wAADdcBQiibeAAAAAd0SU1FB9sHChcbGMqDnAEAAABkSURBVDjLtZNBDsAgCAQHP1768vXSNh5UMKQke9E4WRYxSYxlZg4gycmUpE+AA3rk491KbcO+XjdpBxMXoZP54QFkTU5CtgFlIGHKEaRRrd9aKIVYGmPpI50+jqZwZzbSquvcAZ3xqoRcFjNmAAAAAElFTkSuQmCC);
-	background-position: 0 50%;
-	background-repeat: no-repeat;
 }
 
 .stackContainer .expand, .csLabel.expand {
@@ -59,9 +75,4 @@
 
 .stackContainer .nested {
 	padding-left: 25px;
-}
-
-.otr {
-	background-color: #444;
-	color: #eee;
 }

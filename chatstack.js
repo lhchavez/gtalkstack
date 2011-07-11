@@ -2,7 +2,6 @@ var ChatStack = {
 	pushUrl: ['http://push.st/', 'http://push.st'],
 	popUrl: ['http://pop.st/', 'http://pop.st'],
 	isOTR: false,
-	isWindow: false,
 	
 	install: function() {
 		if(document.body.className == 'xE') {
@@ -13,8 +12,6 @@ var ChatStack = {
 				setTimeout(ChatStack.install, 1000);
 				return;
 			}
-			
-			ChatStack.isWindow = true;
 			
 			ChatStack.register(chat[0]);
 		} else {
@@ -42,7 +39,7 @@ var ChatStack = {
 		e.stack = [];
 		e.labelStack = [];
 		
-		var rootLabel = {label: 'root', contents: e, chat: e};
+		var rootLabel = {label: 'root', contents: e, chat: e, link: document.createElement('div')};
 		
 		e.labelStack.push(rootLabel);
 		
@@ -56,11 +53,13 @@ var ChatStack = {
 		selectorWindow.className = 'selectorWindow';
 		selectorWindow.style.display = 'none';
 		
-		var rootLink = document.createElement('div');
-		rootLink.className = 'stackElement';
-		rootLink.appendChild(document.createTextNode('root'));
+		rootLabel.link.className = 'stackElement selected';
+		rootLabel.link.appendChild(document.createTextNode('root'));
+		rootLabel.link.addEventListener('click', function() {
+			ChatStack.selectLabel(rootLabel, false);
+		}, true);
 		
-		selectorWindow.appendChild(rootLink);
+		selectorWindow.appendChild(rootLabel.link);
 		
 		stackSelector.addEventListener('click', function(e) {
 			e.stopPropagation();
@@ -80,10 +79,6 @@ var ChatStack = {
 		
 		title.appendChild(stackSelector);
 		title.appendChild(selectorWindow);
-		
-		//e.parentNode.parentNode.parentNode.insertBefore(rootLabel.label, e.parentNode.parentNode);
-		if(ChatStack.isWindow)
-			window.innerHeight += 16;
 		
 		// acting upon the complete chat history didn't go as well as expected, so
 		// let's move all the nodes from the chat log to a temporary container, in
@@ -185,21 +180,22 @@ var ChatStack = {
 		ChatStack.addClass(node, after);
 	},
 	
-	selectLabel: function(label) {
-		console.log(label);
-		console.log(label.chat.labelStack);
-		if(label.contents.style.display == '') {
+	selectLabel: function(label, force) {
+		if(!force && label.contents.style.display == '') {
 			// it is already selected. nothing to do here.
 			return;
 		}
 		
 		for(i = 0; i < label.chat.labelStack.length; i++) {
-			ChatStack.removeClass(label.chat.labelStack[i].label, 'selected');
+			ChatStack.removeClass(label.chat.labelStack[i].link, 'selected');
 			label.chat.labelStack[i].contents.style.display = 'none';
 		}
 		
-		ChatStack.addClass(label.label, 'selected');
+		ChatStack.addClass(label.link, 'selected');
 		label.contents.style.display = '';
+		
+		label.chat.selectorWindow.style.display = 'none';
+		label.chat.selector.firstChild.nodeValue = label.label + ' ▼';
 	},
 	
 	push: function(node) {
@@ -231,27 +227,22 @@ var ChatStack = {
 		oldContents.className = 'ko oldContent';
 		chat.stack.push(oldContents);
 		
-		var label = {label: document.createElement('div'), contents: chat, chat: chat};
-		label.label.appendChild(document.createTextNode(context));
-		label.label.className = 'csLabel ko';
-		if(ChatStack.isOTR) {
-			ChatStack.addClass(label.label, 'otr');
-		}
-		
-		label.label.addEventListener('click', function() {
-			ChatStack.selectLabel(label);
-		}, true);
+		var label = {label: context, contents: chat, chat: chat, link: document.createElement('div')};
 		
 		chat.labelStack[chat.labelStack.length - 1].contents = oldContents;
 		chat.labelStack.push(label);
 		
-		chat.parentNode.parentNode.parentNode.insertBefore(oldContents, chat.parentNode.parentNode);
-		//chat.parentNode.parentNode.parentNode.insertBefore(label.label, chat.parentNode.parentNode);
+		label.link.className = 'stackElement';
+		label.link.appendChild(document.createTextNode(context));
+		label.link.addEventListener('click', function() {
+			ChatStack.selectLabel(label, false);
+		}, true);
 		
-		if(ChatStack.isWindow)
-			window.innerHeight += 30;
+		chat.selectorWindow.appendChild(label.link);
+		
+		chat.parentNode.insertBefore(oldContents, chat);
 			
-		//ChatStack.selectLabel(label);
+		ChatStack.selectLabel(label, true);
 		
 		chat.cancelInterception = false;
 	},
@@ -291,7 +282,7 @@ var ChatStack = {
 			stackContainer.className = 'stackContainer';
 		
 			var toggleLink = document.createElement('div');
-			toggleLink.appendChild(document.createTextNode(label.label.firstChild.nodeValue));
+			toggleLink.appendChild(document.createTextNode(label.label));
 			toggleLink.isOTR = ChatStack.isOTR;
 			toggleLink.className = 'toggle expand';
 			
@@ -317,14 +308,13 @@ var ChatStack = {
 			chat.insertBefore(stackContainer, msg);
 		}
 		
-		//label.label.parentNode.removeChild(label.label);
+		label.link.parentNode.removeChild(label.link);
 		
 		var oldContents = chat.labelStack[chat.labelStack.length - 1].contents;
 		oldContents.parentNode.removeChild(oldContents);
 		chat.labelStack[chat.labelStack.length - 1].contents = chat;
 		
-		if(ChatStack.isWindow)
-			window.innerHeight -= 30;
+		ChatStack.selectLabel(chat.labelStack[chat.labelStack.length - 1], true);
 		
 		chat.cancelInterception = false;
 	}
