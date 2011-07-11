@@ -181,21 +181,19 @@ var ChatStack = {
 	},
 	
 	selectLabel: function(label, force) {
-		if(!force && label.contents.style.display == '') {
-			// it is already selected. nothing to do here.
-			return;
-		}
+		if(force || label.contents.style.display != '') {
+			for(i = 0; i < label.chat.labelStack.length; i++) {
+				ChatStack.removeClass(label.chat.labelStack[i].link, 'selected');
+				label.chat.labelStack[i].contents.style.display = 'none';
+			}
 		
-		for(i = 0; i < label.chat.labelStack.length; i++) {
-			ChatStack.removeClass(label.chat.labelStack[i].link, 'selected');
-			label.chat.labelStack[i].contents.style.display = 'none';
-		}
+			ChatStack.addClass(label.link, 'selected');
+			label.contents.style.display = '';
 		
-		ChatStack.addClass(label.link, 'selected');
-		label.contents.style.display = '';
+			label.chat.selector.firstChild.nodeValue = label.label + ' ▼';
+		}
 		
 		label.chat.selectorWindow.style.display = 'none';
-		label.chat.selector.firstChild.nodeValue = label.label + ' ▼';
 	},
 	
 	push: function(node) {
@@ -315,6 +313,11 @@ var ChatStack = {
 		chat.labelStack[chat.labelStack.length - 1].contents = chat;
 		
 		ChatStack.selectLabel(chat.labelStack[chat.labelStack.length - 1], true);
+		
+		chat.parentNode.parentNode.scrollTop = chat.parentNode.parentNode.scrollHeight;
+		setTimeout(function() {
+			chat.parentNode.parentNode.scrollTop = chat.parentNode.parentNode.scrollHeight;
+		}, 2000);
 		
 		chat.cancelInterception = false;
 	}

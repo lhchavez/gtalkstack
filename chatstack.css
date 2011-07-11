@@ -47,6 +47,7 @@
 	cursor: pointer;
 	color: #000;
 	padding-left: 25px;
+	min-height: 1em;
 }
 
 .selectorWindow .stackElement:hover {
